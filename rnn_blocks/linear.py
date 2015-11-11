@@ -1,4 +1,4 @@
-import tensorflow as tensorflow
+import tensorflow as tf
 
 def linear(tensors, output_size, bias = True, bias_start = 0.0, scope = None):
     """
