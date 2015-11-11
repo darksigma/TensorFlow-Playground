@@ -120,3 +120,42 @@ class GRULayer(RNNLayer):
 			new_state = update * state + (1 - update) * candidate
 
 			return new_state, new_state
+
+class BasicLSTMLayer(RNNLayer):
+	"""
+	Basic LSTM Layer (cf. http://arxiv.org/pdf/1409.2329v5.pdf)
+	"""
+
+	def __init__(self, num_units, forget_bias = 1.0):
+		self._num_units = num_units
+		self._forget_bias = forget_bias
+
+	@property 
+	def input_size(self):
+		return self._num_units
+
+	@property 
+	def output_size(self):
+		return self._num_units
+
+	@property
+	def state_size(self):
+		return 2 * self._num_units
+
+	def __call__(self, inputs, state, scope = None):
+		with tf.variable_scope(scope or type(self).__name__):
+			c, h = tf.split(1, 2, state)
+			concat = linear(
+				[inputs, h], 
+				4 * self._num_units, 
+				bias = True
+			)
+
+			i, j, f, o = tf.split(1, 4, concat)
+
+			new_c = c * tf.sigmoid(f + self._forget_bias) + tf.sigmoid(i) * tf.tanh(j)
+			new_h = tf.tanh(new_c) * tf.sigmoid(o)
+			new_state = tf.concat(1, [new_c, new_h])
+
+		return new_h, new_state
+
