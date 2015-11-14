@@ -236,5 +236,6 @@ class MultiRNNLayer(RNNLayer):
                     cur_inp, new_state = layer(cur_inp, cur_state)
                     new_states.append(new_state)
         return cur_inp, tf.concat(1, new_states)
+    
 
 
